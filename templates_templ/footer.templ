@@ -1,0 +1,143 @@
+package templates
+
+templ footerComponent() {
+	<footer class="bg-gray-900 dark:bg-black text-white pt-16 pb-8">
+		<div class="container mx-auto px-4">
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+				<div>
+					<a href="/" class="flex items-center mb-4">
+						<img src="/static/logo-white.png" alt="Hartlepool Car Services" class="h-12"/>
+					</a>
+					<p class="text-gray-400">
+						Premium automotive services in Hartlepool. Quality repairs,
+						diagnostics, and maintenance for all vehicle makes and models.
+					</p>
+				</div>
+				<div>
+					<h3 class="text-lg font-bold mb-4">Quick Links</h3>
+					<ul class="space-y-2">
+						<li>
+							<a
+								href="/"
+								hx-get="/"
+								hx-target="body"
+								hx-swap="outerHTML"
+								hx-push-url="true"
+								class="text-gray-400 hover:text-blue-400 transition"
+							>Home</a>
+						</li>
+						<li>
+							<a
+								href="/about"
+								hx-get="/about"
+								hx-target="body"
+								hx-swap="outerHTML"
+								hx-push-url="true"
+								class="text-gray-400 hover:text-blue-400 transition"
+							>About Us</a>
+						</li>
+						<li>
+							<a
+								href="/services"
+								hx-get="/services"
+								hx-target="body"
+								hx-swap="outerHTML"
+								hx-push-url="true"
+								class="text-gray-400 hover:text-blue-400 transition"
+							>Our Services</a>
+						</li>
+						<li>
+							<a
+								href="/contact"
+								hx-get="/contact"
+								hx-target="body"
+								hx-swap="outerHTML"
+								hx-push-url="true"
+								class="text-gray-400 hover:text-blue-400 transition"
+							>Contact Us</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="text-lg font-bold mb-4">Services</h3>
+					<ul class="space-y-2">
+						<li>
+							<a href="#" class="text-gray-400 hover:text-blue-400 transition">Battery Replacement</a>
+						</li>
+						<li>
+							<a href="#" class="text-gray-400 hover:text-blue-400 transition">Brakes & Suspension</a>
+						</li>
+						<li>
+							<a href="#" class="text-gray-400 hover:text-blue-400 transition">Vehicle Diagnostics</a>
+						</li>
+						<li>
+							<a href="#" class="text-gray-400 hover:text-blue-400 transition">Performance Remapping</a>
+						</li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="text-lg font-bold mb-4">Connect With Us</h3>
+					<div class="flex space-x-4 mb-4">
+						<a href="#" class="text-gray-400 hover:text-blue-400 transition">
+							<i data-feather="facebook"></i>
+						</a>
+						<a href="#" class="text-gray-400 hover:text-blue-400 transition">
+							<i data-feather="twitter"></i>
+						</a>
+						<a href="#" class="text-gray-400 hover:text-blue-400 transition">
+							<i data-feather="instagram"></i>
+						</a>
+					</div>
+					<p class="text-gray-400 mb-2">
+						<i data-feather="phone" class="inline mr-2"></i>
+						01429 123456
+					</p>
+					<p class="text-gray-400">
+						<i data-feather="mail" class="inline mr-2"></i>
+						info@hartlepoolcarservices.com
+					</p>
+				</div>
+			</div>
+			<div class="border-t border-gray-800 dark:border-gray-700 pt-8">
+				<div class="flex flex-col md:flex-row justify-between items-center">
+					<p class="text-gray-400 mb-4 md:mb-0">
+						© 2025 Hartlepool Car Services. All Rights Reserved.
+					</p>
+					<div class="flex space-x-6">
+						<a
+							href="/privacy-policy"
+							hx-get="/privacy-policy"
+							hx-target="body"
+							hx-swap="outerHTML"
+							hx-push-url="true"
+							class="text-gray-400 hover:text-blue-400 transition"
+						>Privacy Policy</a>
+						<a
+							href="/terms-and-conditions"
+							hx-get="/terms-and-conditions"
+							hx-target="body"
+							hx-swap="outerHTML"
+							hx-push-url="true"
+							class="text-gray-400 hover:text-blue-400 transition"
+						>Terms & Conditions</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</footer>
+	<script>
+      AOS.init({
+        duration: 800,
+        easing: "ease-in-out",
+        once: true,
+      });
+      feather.replace();
+      // Mobile menu toggle
+      document
+        .getElementById("mobile-menu-button")
+        .addEventListener("click", function () {
+          const mobileMenu = document.getElementById("mobile-menu");
+          mobileMenu.classList.toggle("active");
+        });
+    </script>
+}

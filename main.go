@@ -34,18 +34,18 @@ func main() {
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// Public routes
-	http.HandleFunc("/", handlers.HomePage)
+	// Public routes (using templ)
+	http.HandleFunc("/", handlers.HomePageTempl)
 	http.HandleFunc("/about", handlers.AboutPage)
 	http.HandleFunc("/services", handlers.ServicesPage)
 	http.HandleFunc("/contact", handlers.ContactPage)
 	http.HandleFunc("/privacy-policy", handlers.PrivacyPolicyPage)
 	http.HandleFunc("/terms-and-conditions", handlers.TermsAndConditionsPage)
 
-	// Auth routes
-	http.HandleFunc("/login", handlers.LoginHandler)
+	// Auth routes (using templ)
+	http.HandleFunc("/login", handlers.LoginHandlerTempl)
 	http.HandleFunc("/signup", handlers.SignupHandler)
-	http.HandleFunc("/logout", handlers.LogoutHandler)
+	http.HandleFunc("/logout", handlers.LogoutHandlerTempl)
 
 	// Authenticated routes
 	http.Handle("/dashboard", middleware.AuthMiddleware(http.HandlerFunc(handlers.DashboardHandler)))

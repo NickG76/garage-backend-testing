@@ -1,1 +1,6 @@
 .env
+node_modules/
+*.log
+/tmp/
+/static/output.css
+templates_templ/**/*_templ.go

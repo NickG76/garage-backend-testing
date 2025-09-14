@@ -17,6 +17,11 @@ func HashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
 func GenerateJWT(userID uuid.UUID, email string, isAdmin bool) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &models.Claims{

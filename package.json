@@ -1,0 +1,12 @@
+{
+  "name": "garage-backend-testing",
+  "version": "1.0.0",
+  "description": "Garage backend with templ, tailwind, and htmx",
+  "scripts": {
+    "build-css": "tailwindcss -i ./assets/input.css -o ./static/output.css --watch",
+    "build-css-prod": "tailwindcss -i ./assets/input.css -o ./static/output.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

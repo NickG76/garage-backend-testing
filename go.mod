@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/a-h/templ v0.3.943 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

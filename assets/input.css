@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles matching the current application */
+.hero-bg {
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+    url("http://static.photos/automotive/1200x630/1");
+  background-size: cover;
+  background-position: center;
+}
+
+.login-hero {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('http://static.photos/automotive/1200x630/5');
+  background-size: cover;
+  background-position: center;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu {
+  display: none;
+}
+
+.mobile-menu.active {
+  display: block;
+}
+
+.sidebar-minimized {
+  width: 80px;
+}
+
+.sidebar-minimized .sidebar-text,
+.sidebar-minimized .logo-text,
+.sidebar-minimized .user-info {
+  display: none;
+}
+
+.sidebar-minimized .nav-item {
+  justify-content: center;
+}
+
+.dashboard-bg {
+  background-color: #f8fafc;
+}
+
+.login-card {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
