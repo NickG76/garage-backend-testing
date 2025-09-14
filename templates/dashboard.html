@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Title}} | Hartlepool Car Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- Added Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .hero-bg {
+        background:
+          linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+          url("http://static.photos/automotive/1200x630/1");
+        background-size: cover;
+        background-position: center;
+      }
+      .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+      .mobile-menu {
+        display: none;
+      }
+      .mobile-menu.active {
+        display: block;
+      }
+       .sidebar-minimized {
+            width: 80px;
+        }
+        .sidebar-minimized .sidebar-text,
+        .sidebar-minimized .logo-text,
+        .sidebar-minimized .user-info {
+            display: none;
+        }
+        .sidebar-minimized .nav-item {
+            justify-content: center;
+        }
+    </style>
+        <script>
+      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    </script>
+
+  </head>
+
+    <body
+    class="bg-gray-50 dark:bg-gray-900 font-sans leading-normal tracking-normal text-gray-800 dark:text-gray-200 absolute top-0 left-0 w-full h-full antialiased overflow-x-hidden"
+  >
+
+   <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-gray-900 text-white w-64 flex-none flex-col hidden md:flex dark:bg-gray-800">
+            <div class="p-4 border-b border-gray-700 dark:border-gray-600 flex items-center justify-center w-full">
+                <a href="/" class="text-center logo-text ml-3 text-xl font-bold"><img src="/static/logo-white.png" alt="Logo" class="h-10 rounded"></a>
+            </div>
+            
+            <div class="p-4 border-b border-gray-700 dark:border-gray-600 user-info">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">{{printf "%.1s" .User.Name}}</div>
+                    <div class="ml-3">
+                        <div class="font-medium">{{.User.Name}}</div>
+                        <div class="text-sm text-gray-400">{{.User.Email}}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto p-4">
+                <div class="space-y-2">
+                    <a href="/dashboard" class="nav-item flex items-center px-3 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white">
+                        <i data-feather="home" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">Dashboard</span>
+                    </a>
+                    {{if .User.IsAdmin}}
+                    <a href="/admin/dashboard" class="nav-item flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-900 text-gray-300 hover:text-white">
+                        <i data-feather="settings" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">Admin Panel</span>
+                    </a>
+                    {{end}}
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-700 dark:border-gray-600">
+                <button id="toggle-sidebar" class="flex items-center text-gray-400 hover:text-white">
+                    <i data-feather="chevron-left" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-2">Collapse</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-auto">
+            <!-- Top Bar -->
+            <header class="bg-white dark:bg-gray-800 shadow-sm flex-none">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <div class="flex items-center">
+                        <button id="mobile-menu-button" class="mr-4 md:hidden focus:outline-none text-gray-600 dark:text-gray-300">
+                            <i data-feather="menu"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="/logout" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Logout">
+                            <i data-feather="log-out"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <main class="p-6 flex-1">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <i data-feather="calendar"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Appointments</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.TotalAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <i data-feather="check-circle"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Confirmed/Completed</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.AcceptedAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                <i data-feather="clock"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.PendingAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                <i data-feather="x-circle"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Cancelled</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.CancelledAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appointments Section -->
+                <section id="appointments" class="mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">My Appointments</h2>
+                        <button id="new-appointment-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i data-feather="plus" class="mr-2"></i> New Appointment
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date & Time</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    {{range .UserAppointments}}
+                                    <tr data-date="{{.Datetime.Time.Format "2006-01-02"}}" data-title="{{.Title}}" data-time="{{.Datetime.Time.Format "3:04 PM"}}">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">{{ .Datetime.Time.Format "Mon, 02 Jan 2006"}}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ .Datetime.Time.Format "3:04 PM"}}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{{.Title}}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{.Description.String}}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span id="status-{{printf "%x" .ID.Bytes}}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{if eq .Status "pending"}}bg-yellow-100 text-yellow-800{{else if eq .Status "confirmed"}}bg-blue-100 text-blue-800{{else if eq .Status "completed"}}bg-green-100 text-green-800{{else}}bg-red-100 text-red-800{{end}}">{{.Status}}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <form action="/delete-appointment" method="POST" onsubmit="return confirm('Are you sure you want to delete this appointment?');" class="inline">
+                                                <input type="hidden" name="id" value="{{printf "%x" .ID.Bytes}}">
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Cancel</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {{else}}
+                                    <tr><td colspan="5" class="text-center p-4 text-gray-500 dark:text-gray-400">You have no appointments.</td></tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Calendar and Stats -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Calendar -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-1">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">{{.Calendar.Month}} {{.Calendar.Year}}</h3>
+                            <div class="flex space-x-2">
+                                <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" disabled>
+                                    <i data-feather="chevron-left"></i>
+                                </button>
+                                <button class="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700" disabled>
+                                    <i data-feather="chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 mb-2">
+                            {{range .Calendar.DaysOfWeek}}
+                            <div class="text-center text-xs font-medium text-gray-500 dark:text-gray-400">{{.}}</div>
+                            {{end}}
+                        </div>
+                        <div class="grid grid-cols-7 gap-1" id="calendar-grid">
+                            {{range .Calendar.Days}}
+                                {{if .Number | eq 0}}
+                                <div class="h-8"></div>
+                                {{else}}
+                                <div class="calendar-day h-8 flex items-center justify-center text-sm rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 relative {{if .IsToday}}bg-blue-500 text-white hover:bg-blue-600{{end}}" data-day="{{.Number}}">
+                                    {{.Number}}
+                                    {{if .Appointments}}
+                                    <span class="absolute h-2 w-2 bg-teal-500 rounded-full bottom-1"></span>
+                                    {{end}}
+                                </div>
+                                {{end}}
+                            {{end}}
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Chart -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Appointments Overview</h3>
+                        <div class="h-64">
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- New Appointment Modal -->
+                <div id="new-appointment-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+                        <div class="flex justify-between items-center border-b dark:border-gray-700 px-6 py-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">New Appointment</h3>
+                            <button id="close-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <form action="/create-appointment" method="POST">
+                                <div class="mb-4">
+                                    <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+                                    <input type="text" id="title" name="title" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="datetime" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date & Time</label>
+                                    <input type="datetime-local" id="datetime" name="datetime" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                                    <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" id="cancel-appointment" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Schedule</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="calendar-tooltip" class="absolute z-50 hidden px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm tooltip dark:bg-gray-700">
+        <!-- Content will be injected by JavaScript -->
+    </div>
+
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+
+            // Sidebar toggle logic
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('toggle-sidebar');
+
+            toggleButton.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (sidebar.classList.contains('sidebar-minimized')) {
+                    sidebar.classList.remove('sidebar-minimized');
+                    icon.setAttribute('data-feather', 'chevron-left');
+                    this.querySelector('span').textContent = 'Collapse';
+                } else {
+                    sidebar.classList.add('sidebar-minimized');
+                    icon.setAttribute('data-feather', 'chevron-right');
+                    this.querySelector('span').textContent = 'Expand';
+                }
+                feather.replace();
+            });
+
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-button').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('hidden');
+            });
+
+            // Modal logic
+            const modal = document.getElementById('new-appointment-modal');
+            document.getElementById('new-appointment-btn').addEventListener('click', () => modal.classList.remove('hidden'));
+            document.getElementById('close-modal').addEventListener('click', () => modal.classList.add('hidden'));
+            document.getElementById('cancel-appointment').addEventListener('click', () => modal.classList.add('hidden'));
+            
+            
+            // --- NEW: Calendar Tooltip Logic ---
+            const calendarGrid = document.getElementById('calendar-grid');
+            const tooltip = document.getElementById('calendar-tooltip');
+            let appointmentsByDay = {};
+
+            // 1. Read appointment data from the table
+            const buildAppointmentMap = () => {
+                appointmentsByDay = {}; // Clear previous map
+                document.querySelectorAll('#appointments tbody tr[data-date]').forEach(row => {
+                    const date = row.dataset.date;
+                    const day = new Date(date + 'T00:00:00').getDate(); // Get day number
+                    
+                    if (!appointmentsByDay[day]) {
+                        appointmentsByDay[day] = [];
+                    }
+                    appointmentsByDay[day].push({
+                        title: row.dataset.title,
+                        time: row.dataset.time
+                    });
+                });
+            };
+            
+            // 2. Attach event listeners to calendar days
+            const setupCalendarHovers = () => {
+                calendarGrid.querySelectorAll('.calendar-day[data-day]').forEach(dayCell => {
+                    const day = parseInt(dayCell.dataset.day, 10);
+                    
+                    if (appointmentsByDay[day]) {
+                         // Add indicator dot if not already there
+                        if (!dayCell.querySelector('.appointment-dot')) {
+                            const dot = document.createElement('span');
+                            dot.className = 'appointment-dot absolute h-2 w-2 bg-teal-500 rounded-full bottom-1';
+                            dayCell.appendChild(dot);
+                        }
+                        
+                        dayCell.addEventListener('mouseenter', (e) => {
+                            const appointments = appointmentsByDay[day];
+                            let tooltipContent = '';
+                            appointments.forEach(appt => {
+                                tooltipContent += `<div class="font-semibold">${appt.title}</div><div class="text-xs">${appt.time}</div>`;
+                            });
+
+                            tooltip.innerHTML = tooltipContent;
+                            tooltip.classList.remove('hidden');
+
+                            // Position tooltip
+                            const rect = e.target.getBoundingClientRect();
+                            tooltip.style.left = `${rect.left + window.scrollX}px`;
+                            tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5}px`;
+                        });
+
+                        dayCell.addEventListener('mouseleave', () => {
+                            tooltip.classList.add('hidden');
+                        });
+                    }
+                });
+            };
+            
+            // Initial setup
+            buildAppointmentMap();
+            setupCalendarHovers();
+
+
+            // Chart.js initialization
+            const chartCtx = document.getElementById('appointmentsChart').getContext('2d');
+            const chartData = {
+                labels: {{toJSON .ChartData.Labels}},
+                datasets: [
+                    {
+                        label: 'Confirmed',
+                        data: {{toJSON .ChartData.Confirmed}},
+                        backgroundColor: '#34D399',
+                    },
+                    {
+                        label: 'Pending',
+                        data: {{toJSON .ChartData.Pending}},
+                        backgroundColor: '#FBBF24',
+                    },
+                    {
+                        label: 'Cancelled',
+                        data: {{toJSON .ChartData.Cancelled}},
+                        backgroundColor: '#F87171',
+                    }
+                ]
+            };
+            
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { 
+                        stacked: true,
+                        ticks: { color: isDarkMode ? '#9CA3AF' : '#6B7281' },
+                        grid: { color: isDarkMode ? '#374151' : '#E5E7EB' }
+                    },
+                    y: { 
+                        stacked: true, 
+                        beginAtZero: true,
+                        ticks: { color: isDarkMode ? '#9CA3AF' : '#6B7281' },
+                        grid: { color: isDarkMode ? '#374151' : '#E5E7EB' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: isDarkMode ? '#D1D5DB' : '#374151'
+                        }
+                    }
+                }
+            };
+            
+            const appointmentsChart = new Chart(chartCtx, {
+                type: 'bar',
+                data: chartData,
+                options: chartOptions
+            });
+
+
+            // --- WebSocket and Toast Logic ---
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+            const statusBadgeClasses = {
+                pending: 'bg-yellow-100 text-yellow-800',
+                confirmed: 'bg-blue-100 text-blue-800',
+                completed: 'bg-green-100 text-green-800',
+                cancelled: 'bg-red-100 text-red-800',
+                default: 'bg-gray-100 text-gray-800'
+            };
+
+            const toastTypeMap = {
+                confirmed: 'info',
+                completed: 'success',
+                cancelled: 'error'
+            };
+
+            let reconnectDelay = 2000;
+
+            const connect = () => {
+                const socket = new WebSocket(wsUrl);
+
+                socket.onopen = () => {
+                    console.log('User WebSocket connected.');
+                    reconnectDelay = 2000;
+                };
+
+                socket.onmessage = (event) => {
+                    try {
+                        const msg = JSON.parse(event.data);
+                        if (msg.type === 'status_update') {
+                            const { appointmentId, title, status } = msg.data;
+                            const message = `Your appointment for "${title}" is now ${status}.`;
+                            const toastType = toastTypeMap[status] || 'info';
+                            showToast(message, toastType);
+                            updateStatusBadge(appointmentId, status);
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse WebSocket message:", e);
+                    }
+                };
+
+                socket.onclose = () => {
+                    console.log(`WebSocket disconnected. Reconnecting in ${reconnectDelay / 1000}s...`);
+                    setTimeout(connect, reconnectDelay);
+                    reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+                };
+
+                socket.onerror = (err) => {
+                    console.error('WebSocket error:', err);
+                    socket.close();
+                };
+            };
+
+            const updateStatusBadge = (appointmentId, status) => {
+                const statusSpan = document.getElementById(`status-${appointmentId}`);
+                if (!statusSpan) return;
+
+                statusSpan.textContent = status;
+                Object.values(statusBadgeClasses).forEach(className => {
+                    className.split(' ').forEach(cls => statusSpan.classList.remove(cls));
+                });
+                const newClasses = statusBadgeClasses[status] || statusBadgeClasses.default;
+                newClasses.split(' ').forEach(cls => statusSpan.classList.add(cls));
+            };
+
+            const showToast = (message, type = 'info') => {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+
+                const toast = document.createElement('div');
+                toast.textContent = message;
+
+                const baseClasses = 'text-white font-bold py-2 px-4 rounded shadow-lg transition-opacity duration-500';
+                let typeClasses = '';
+                switch (type) {
+                    case 'error': typeClasses = 'bg-red-600'; break;
+                    case 'success': typeClasses = 'bg-green-600'; break;
+                    case 'info': default: typeClasses = 'bg-blue-600'; break;
+                }
+                
+                toast.className = `${baseClasses} ${typeClasses} opacity-0`;
+                container.appendChild(toast);
+
+                setTimeout(() => toast.classList.remove('opacity-0'), 10);
+                setTimeout(() => toast.classList.add('opacity-0'), 4000);
+                setTimeout(() => toast.remove(), 4500);
+            };
+
+            connect();
+        });
+    </script>
+</body>
+</html>
+
+
