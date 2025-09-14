@@ -50,6 +50,16 @@ func NewHub() *Hub {
 	}
 }
 
+// BroadcastMessage sends a message to all connected admins.
+func (h *Hub) BroadcastMessage(message []byte) {
+	h.broadcast <- message
+}
+
+// UnicastMessage sends a message to a specific user client.
+func (h *Hub) UnicastMessage(message *models.Message) {
+	h.unicast <- message
+}
+
 func (h *Hub) Run() {
 	for {
 		select {
@@ -84,6 +94,7 @@ func (h *Hub) Run() {
 				continue
 			}
 			for client := range h.clients {
+				// Note: message.UserID from the models.Message struct is a uuid.UUID
 				if client.UserID == message.UserID {
 					select {
 					case client.send <- jsonMsg:

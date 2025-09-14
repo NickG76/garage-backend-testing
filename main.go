@@ -13,30 +13,24 @@ import (
 )
 
 func main() {
-	// Load environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	// Connect to the database
 	database.ConnectDB()
 	defer database.CloseDB()
 
-	// Run database migrations
 	if err := database.RunMigrations(); err != nil {
 		log.Fatalf("Could not run database migrations: %v", err)
 	}
 
-	// Seed the initial admin user
 	if err := database.SeedAdminUser(); err != nil {
 		log.Fatalf("Could not seed admin user: %v", err)
 	}
 
-	// Initialize WebSocket Hub
 	handlers.WsHub = handlers.NewHub()
 	go handlers.WsHub.Run()
 
-	// Static file server
 	fs := http.FileServer(http.Dir("./static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -56,7 +50,7 @@ func main() {
 	// Authenticated routes
 	http.Handle("/dashboard", middleware.AuthMiddleware(http.HandlerFunc(handlers.DashboardHandler)))
 	http.Handle("/create-appointment", middleware.AuthMiddleware(http.HandlerFunc(handlers.CreateAppointmentHandler)))
-	http.Handle("/delete-appointment", middleware.AuthMiddleware(http.HandlerFunc(handlers.DeleteAppointmentHandler)))
+	http.Handle("/cancel-appointment", middleware.AuthMiddleware(http.HandlerFunc(handlers.UserCancelAppointmentHandler)))
 
 	// WebSocket route
 	http.Handle("/ws", middleware.SoftAuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -65,11 +59,14 @@ func main() {
 
 	// Admin routes
 	adminRoutes := http.NewServeMux()
+	adminRoutes.Handle("/admin/overview", http.HandlerFunc(handlers.AdminOverviewHandler))
 	adminRoutes.Handle("/admin/dashboard", http.HandlerFunc(handlers.AdminDashboardHandler))
 	adminRoutes.Handle("/admin/update-status", http.HandlerFunc(handlers.AdminUpdateAppointmentStatusHandler))
+	adminRoutes.Handle("/admin/delete-appointment", http.HandlerFunc(handlers.AdminDeleteAppointmentHandler))
+	adminRoutes.Handle("/api/admin/calendar", http.HandlerFunc(handlers.AdminCalendarHandler))
 	http.Handle("/admin/", middleware.AuthMiddleware(middleware.AdminMiddleware(adminRoutes)))
+	http.Handle("/api/admin/", middleware.AuthMiddleware(middleware.AdminMiddleware(adminRoutes)))
 
-	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

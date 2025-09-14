@@ -1,0 +1,260 @@
+{{template "dashboard_header.html" .}}
+
+<body class="dashboard-bg font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-gray-900 text-white w-64 flex-none flex-col hidden md:flex dark:bg-gray-800">
+             <div class="p-4 border-b border-gray-700 dark:border-gray-600 flex items-center justify-center w-full">
+                <a href="/" class="text-center logo-text ml-3 text-xl font-bold"><img src="/static/logo-white.png" alt="Logo" class="h-10 rounded"></a>
+            </div>
+            
+            <div class="p-4 border-b border-gray-700 dark:border-gray-600 user-info">
+                <div class="flex items-center">
+                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">{{printf "%.1s" .User.Name}}</div>
+                    <div class="ml-3">
+                        <div class="font-medium">{{.User.Name}}</div>
+                        <div class="text-sm text-gray-400">{{.User.Email}}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto p-4">
+                <div class="space-y-2">
+                    <a href="/dashboard" class="nav-item flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-900 text-gray-300 hover:text-white">
+                        <i data-feather="home" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">My Dashboard</span>
+                    </a>
+                    {{if .User.IsAdmin}}
+                     <a href="/admin/overview" class="nav-item flex items-center px-3 py-2 rounded-lg bg-gray-700 dark:bg-gray-900 text-white">
+                        <i data-feather="pie-chart" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">Overview</span>
+                    </a>
+                    <a href="/admin/dashboard" class="nav-item flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-900 text-gray-300 hover:text-white">
+                        <i data-feather="settings" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">Appointments List</span>
+                    </a>
+                    {{end}}
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-700 dark:border-gray-600">
+                <button id="toggle-sidebar" class="flex items-center text-gray-400 hover:text-white">
+                    <i data-feather="chevron-left" class="w-5 h-5"></i>
+                    <span class="sidebar-text ml-2">Collapse</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-auto">
+            <!-- Top Bar -->
+            <header class="bg-white dark:bg-gray-800 shadow-sm flex-none dark:border-b dark:border-gray-700">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <div class="flex items-center">
+                        <button id="mobile-menu-button" class="mr-4 md:hidden focus:outline-none text-gray-600 dark:text-gray-300">
+                            <i data-feather="menu"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Admin Overview</h1>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                         <a href="/logout" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Logout">
+                            <i data-feather="log-out"></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <main class="p-6 flex-1">
+                 <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                <i data-feather="calendar"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Appointments</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.TotalAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                <i data-feather="check-circle"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Confirmed/Completed</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.AcceptedAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                <i data-feather="clock"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.PendingAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                <i data-feather="x-circle"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Cancelled</h3>
+                                <p class="text-2xl font-semibold text-gray-800 dark:text-white">{{.CancelledAppointments}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar and Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Calendar -->
+                    <div id="calendar-container" class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-1">
+                        {{template "admin_calendar.html" .Calendar}}
+                    </div>
+                    
+                    <!-- Stats Chart -->
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 lg:col-span-2">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Appointments Overview (12 Months)</h3>
+                        <div class="h-64">
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments by User -->
+                <section id="appointments-by-user">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-6">Appointments by User</h2>
+                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Customer</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Appointments</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    {{range .AppointmentsByUser}}
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">{{printf "%.1s" .User.Name}}</div>
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{.User.Name}}</div>
+                                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{.User.Email}}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{.Count}}</td>
+                                    </tr>
+                                    {{else}}
+                                    <tr><td colspan="2" class="text-center p-4 text-gray-500 dark:text-gray-400">No customer appointments found.</td></tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        feather.replace();
+
+        // Sidebar toggle logic
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = this.querySelector('[data-feather]');
+            if (sidebar.classList.contains('sidebar-minimized')) {
+                sidebar.classList.remove('sidebar-minimized');
+                if (icon) icon.setAttribute('data-feather', 'chevron-left');
+                this.querySelector('span').textContent = 'Collapse';
+            } else {
+                sidebar.classList.add('sidebar-minimized');
+                if (icon) icon.setAttribute('data-feather', 'chevron-right');
+                this.querySelector('span').textContent = 'Expand';
+            }
+            feather.replace();
+        });
+
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        });
+
+        // Chart.js initialization
+        const chartCtx = document.getElementById('appointmentsChart').getContext('2d');
+        const chartData = {
+            labels: {{toJSON .ChartData.Labels}},
+            datasets: [
+                { label: 'Confirmed', data: {{toJSON .ChartData.Confirmed}}, backgroundColor: '#34D399' },
+                { label: 'Pending', data: {{toJSON .ChartData.Pending}}, backgroundColor: '#FBBF24' },
+                { label: 'Cancelled', data: {{toJSON .ChartData.Cancelled}}, backgroundColor: '#F87171' }
+            ]
+        };
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const chartOptions = {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true, ticks: { color: isDarkMode ? '#9CA3AF' : '#6B7281' }, grid: { color: isDarkMode ? '#374151' : '#E5E7EB' }},
+                y: { stacked: true, beginAtZero: true, ticks: { color: isDarkMode ? '#9CA3AF' : '#6B7281' }, grid: { color: isDarkMode ? '#374151' : '#E5E7EB' }}
+            },
+            plugins: { legend: { labels: { color: isDarkMode ? '#D1D5DB' : '#374151' }}}
+        };
+        new Chart(chartCtx, { type: 'bar', data: chartData, options: chartOptions });
+
+        // Interactive Calendar Logic
+        const calendarContainer = document.getElementById('calendar-container');
+        let currentMonth = new Date().getMonth() + 1;
+        let currentYear = new Date().getFullYear();
+
+        const fetchCalendar = async (month, year) => {
+            try {
+                const response = await fetch(`/api/admin/calendar?month=${month}&year=${year}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const html = await response.text();
+                calendarContainer.innerHTML = html;
+                feather.replace(); 
+                attachCalendarNavListeners();
+            } catch (error) {
+                console.error('Failed to fetch calendar:', error);
+                calendarContainer.innerHTML = '<p class="text-red-500">Could not load calendar.</p>';
+            }
+        };
+
+        const attachCalendarNavListeners = () => {
+            document.getElementById('prev-month-btn')?.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 1) {
+                    currentMonth = 12;
+                    currentYear--;
+                }
+                fetchCalendar(currentMonth, currentYear);
+            });
+
+            document.getElementById('next-month-btn')?.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                }
+                fetchCalendar(currentMonth, currentYear);
+            });
+        };
+        
+        attachCalendarNavListeners();
+    });
+    </script>
+</body>
+</html>
+

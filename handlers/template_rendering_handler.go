@@ -37,8 +37,6 @@ func init() {
 	}
 
 	files = append(files, layouts...)
-
-	// Chain Funcs before parsing the files.
 	templates = template.Must(template.New("").Funcs(funcMap).ParseFiles(files...))
 }
 
@@ -56,7 +54,6 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, dat
 	}
 
 	buf := new(bytes.Buffer)
-	// Execute the specific template by its name (e.g., "index.html") from the global cache.
 	err := templates.ExecuteTemplate(buf, tmplName, data)
 	if err != nil {
 		log.Printf("Error executing template %s: %v", tmplName, err)
@@ -64,6 +61,15 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, dat
 		return
 	}
 	buf.WriteTo(w)
+}
+
+// RenderPartialTemplate renders a single template file from the pre-parsed cache.
+func RenderPartialTemplate(w http.ResponseWriter, r *http.Request, tmplName string, data interface{}) {
+	err := templates.ExecuteTemplate(w, tmplName, data)
+	if err != nil {
+		log.Printf("Partial template execution error for %s: %v", tmplName, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 

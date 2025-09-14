@@ -1,66 +1,6 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{.Title}} | Hartlepool Car Services</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <!-- Added Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      .hero-bg {
-        background:
-          linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-          url("http://static.photos/automotive/1200x630/1");
-        background-size: cover;
-        background-position: center;
-      }
-      .service-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-      }
-      .mobile-menu {
-        display: none;
-      }
-      .mobile-menu.active {
-        display: block;
-      }
-       .sidebar-minimized {
-            width: 80px;
-        }
-        .sidebar-minimized .sidebar-text,
-        .sidebar-minimized .logo-text,
-        .sidebar-minimized .user-info {
-            display: none;
-        }
-        .sidebar-minimized .nav-item {
-            justify-content: center;
-        }
-    </style>
-        <script>
-      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!("theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    </script>
-
-  </head>
-
-    <body
-    class="bg-gray-50 dark:bg-gray-900 font-sans leading-normal tracking-normal text-gray-800 dark:text-gray-200 absolute top-0 left-0 w-full h-full antialiased overflow-x-hidden"
-  >
-
-   <div class="flex h-screen overflow-hidden">
+{{template "dashboard_header.html" .}}
+<body class="dashboard-bg font-sans antialiased">
+    <div class="flex h-screen overflow-hidden">
         <!-- Sidebar -->
         <div id="sidebar" class="sidebar bg-gray-900 text-white w-64 flex-none flex-col hidden md:flex dark:bg-gray-800">
             <div class="p-4 border-b border-gray-700 dark:border-gray-600 flex items-center justify-center w-full">
@@ -84,9 +24,13 @@
                         <span class="sidebar-text ml-3">Dashboard</span>
                     </a>
                     {{if .User.IsAdmin}}
+                     <a href="/admin/overview" class="nav-item flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-900 text-gray-300 hover:text-white">
+                        <i data-feather="pie-chart" class="w-5 h-5"></i>
+                        <span class="sidebar-text ml-3">Admin Overview</span>
+                    </a>
                     <a href="/admin/dashboard" class="nav-item flex items-center px-3 py-2 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-900 text-gray-300 hover:text-white">
                         <i data-feather="settings" class="w-5 h-5"></i>
-                        <span class="sidebar-text ml-3">Admin Panel</span>
+                        <span class="sidebar-text ml-3">Appointments List</span>
                     </a>
                     {{end}}
                 </div>
@@ -112,7 +56,13 @@
                         <h1 class="text-xl font-semibold text-gray-800 dark:text-white">Dashboard</h1>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="/logout" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Logout">
+
+                        <a href="/" class="flex gap-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Logout">
+                            <p>Home</p>
+                            <i data-feather="home"></i>
+                        </a>
+                        <a href="/logout" class="flex gap-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300" title="Logout">
+                            <p>Logout</p>
                             <i data-feather="log-out"></i>
                         </a>
                     </div>
@@ -192,7 +142,7 @@
                                 </thead>
                                 <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                     {{range .UserAppointments}}
-                                    <tr data-date="{{.Datetime.Time.Format "2006-01-02"}}" data-title="{{.Title}}" data-time="{{.Datetime.Time.Format "3:04 PM"}}">
+                                    <tr id="appointment-row-{{printf "%x" .ID.Bytes}}" data-date="{{.Datetime.Time.Format "2006-01-02"}}" data-title="{{.Title}}" data-time="{{.Datetime.Time.Format "3:04 PM"}}" {{if eq .Status "cancelled"}}class="line-through text-gray-400 dark:text-gray-500"{{end}}>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900 dark:text-white">{{ .Datetime.Time.Format "Mon, 02 Jan 2006"}}</div>
                                             <div class="text-sm text-gray-500 dark:text-gray-400">{{ .Datetime.Time.Format "3:04 PM"}}</div>
@@ -203,9 +153,11 @@
                                             <span id="status-{{printf "%x" .ID.Bytes}}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{if eq .Status "pending"}}bg-yellow-100 text-yellow-800{{else if eq .Status "confirmed"}}bg-blue-100 text-blue-800{{else if eq .Status "completed"}}bg-green-100 text-green-800{{else}}bg-red-100 text-red-800{{end}}">{{.Status}}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <form action="/delete-appointment" method="POST" onsubmit="return confirm('Are you sure you want to delete this appointment?');" class="inline">
+                                            <form action="/cancel-appointment" method="POST" onsubmit="return confirm('Are you sure you want to cancel this appointment?');" class="inline">
                                                 <input type="hidden" name="id" value="{{printf "%x" .ID.Bytes}}">
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Cancel</button>
+                                                <button id="cancel-btn-{{printf "%x" .ID.Bytes}}" type="submit" class="text-red-600 hover:text-red-900" {{if eq .Status "cancelled"}}disabled{{end}}>
+                                                    {{if eq .Status "cancelled"}}Cancelled{{else}}Cancel{{end}}
+                                                </button>
                                             </form>
                                         </td>
                                     </tr>
@@ -246,7 +198,7 @@
                                 <div class="calendar-day h-8 flex items-center justify-center text-sm rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 relative {{if .IsToday}}bg-blue-500 text-white hover:bg-blue-600{{end}}" data-day="{{.Number}}">
                                     {{.Number}}
                                     {{if .Appointments}}
-                                    <span class="absolute h-2 w-2 bg-teal-500 rounded-full bottom-1"></span>
+                                    <span class="appointment-dot absolute h-2 w-2 bg-teal-500 rounded-full bottom-1"></span>
                                     {{end}}
                                 </div>
                                 {{end}}
@@ -316,14 +268,14 @@
             const toggleButton = document.getElementById('toggle-sidebar');
 
             toggleButton.addEventListener('click', function() {
-                const icon = this.querySelector('i');
+                const icon = this.querySelector('[data-feather]');
                 if (sidebar.classList.contains('sidebar-minimized')) {
                     sidebar.classList.remove('sidebar-minimized');
-                    icon.setAttribute('data-feather', 'chevron-left');
+                    if (icon) icon.setAttribute('data-feather', 'chevron-left');
                     this.querySelector('span').textContent = 'Collapse';
                 } else {
                     sidebar.classList.add('sidebar-minimized');
-                    icon.setAttribute('data-feather', 'chevron-right');
+                    if (icon) icon.setAttribute('data-feather', 'chevron-right');
                     this.querySelector('span').textContent = 'Expand';
                 }
                 feather.replace();
@@ -342,12 +294,11 @@
             document.getElementById('cancel-appointment').addEventListener('click', () => modal.classList.add('hidden'));
             
             
-            // --- NEW: Calendar Tooltip Logic ---
+            // --- Calendar Tooltip Logic ---
             const calendarGrid = document.getElementById('calendar-grid');
             const tooltip = document.getElementById('calendar-tooltip');
             let appointmentsByDay = {};
 
-            // 1. Read appointment data from the table
             const buildAppointmentMap = () => {
                 appointmentsByDay = {}; // Clear previous map
                 document.querySelectorAll('#appointments tbody tr[data-date]').forEach(row => {
@@ -364,30 +315,21 @@
                 });
             };
             
-            // 2. Attach event listeners to calendar days
             const setupCalendarHovers = () => {
                 calendarGrid.querySelectorAll('.calendar-day[data-day]').forEach(dayCell => {
                     const day = parseInt(dayCell.dataset.day, 10);
                     
                     if (appointmentsByDay[day]) {
-                         // Add indicator dot if not already there
-                        if (!dayCell.querySelector('.appointment-dot')) {
-                            const dot = document.createElement('span');
-                            dot.className = 'appointment-dot absolute h-2 w-2 bg-teal-500 rounded-full bottom-1';
-                            dayCell.appendChild(dot);
-                        }
-                        
                         dayCell.addEventListener('mouseenter', (e) => {
                             const appointments = appointmentsByDay[day];
                             let tooltipContent = '';
                             appointments.forEach(appt => {
-                                tooltipContent += `<div class="font-semibold">${appt.title}</div><div class="text-xs">${appt.time}</div>`;
+                                tooltipContent += `<div class="p-1"><div class="font-semibold">${appt.title}</div><div class="text-xs text-gray-300">${appt.time}</div></div>`;
                             });
 
                             tooltip.innerHTML = tooltipContent;
                             tooltip.classList.remove('hidden');
 
-                            // Position tooltip
                             const rect = e.target.getBoundingClientRect();
                             tooltip.style.left = `${rect.left + window.scrollX}px`;
                             tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 5}px`;
@@ -400,7 +342,6 @@
                 });
             };
             
-            // Initial setup
             buildAppointmentMap();
             setupCalendarHovers();
 
@@ -498,6 +439,16 @@
                             const toastType = toastTypeMap[status] || 'info';
                             showToast(message, toastType);
                             updateStatusBadge(appointmentId, status);
+
+                            if (status === 'cancelled') {
+                                const row = document.getElementById(`appointment-row-${appointmentId}`);
+                                const btn = document.getElementById(`cancel-btn-${appointmentId}`);
+                                if (row) row.classList.add('line-through', 'text-gray-400', 'dark:text-gray-500');
+                                if (btn) {
+                                    btn.disabled = true;
+                                    btn.textContent = 'Cancelled';
+                                }
+                            }
                         }
                     } catch (e) {
                         console.error("Failed to parse WebSocket message:", e);

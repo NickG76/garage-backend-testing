@@ -11,6 +11,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const adminDeleteAppointment = `-- name: AdminDeleteAppointment :exec
+DELETE FROM appointments WHERE id = $1
+`
+
+func (q *Queries) AdminDeleteAppointment(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, adminDeleteAppointment, id)
+	return err
+}
+
 const createAppointment = `-- name: CreateAppointment :one
 INSERT INTO appointments (user_id, datetime, title, description)
 VALUES ($1, $2, $3, $4)
@@ -79,15 +88,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
-const deleteAppointment = `-- name: DeleteAppointment :exec
-DELETE FROM appointments WHERE id = $1
-`
-
-func (q *Queries) DeleteAppointment(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteAppointment, id)
-	return err
-}
-
 const getAllAppointments = `-- name: GetAllAppointments :many
 SELECT
   a.id,
@@ -138,6 +138,75 @@ func (q *Queries) GetAllAppointments(ctx context.Context) ([]GetAllAppointmentsR
 			&i.UserName,
 			&i.UserEmail,
 			&i.UserPhone,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllAppointmentsByMonth = `-- name: GetAllAppointmentsByMonth :many
+SELECT id, user_id, datetime, title, description, status, created_at FROM appointments WHERE datetime >= $1 AND datetime < $2 ORDER BY datetime
+`
+
+type GetAllAppointmentsByMonthParams struct {
+	Datetime   pgtype.Timestamptz `json:"datetime"`
+	Datetime_2 pgtype.Timestamptz `json:"datetime_2"`
+}
+
+func (q *Queries) GetAllAppointmentsByMonth(ctx context.Context, arg GetAllAppointmentsByMonthParams) ([]Appointment, error) {
+	rows, err := q.db.Query(ctx, getAllAppointmentsByMonth, arg.Datetime, arg.Datetime_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Appointment
+	for rows.Next() {
+		var i Appointment
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Datetime,
+			&i.Title,
+			&i.Description,
+			&i.Status,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllUsers = `-- name: GetAllUsers :many
+SELECT id, name, email, password_hash, phone, is_admin, created_at FROM users ORDER BY name
+`
+
+func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, getAllUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.PasswordHash,
+			&i.Phone,
+			&i.IsAdmin,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -238,20 +307,6 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	return i, err
 }
 
-const setAdmin = `-- name: SetAdmin :exec
-UPDATE users SET is_admin = $2 WHERE email = $1
-`
-
-type SetAdminParams struct {
-	Email   string `json:"email"`
-	IsAdmin bool   `json:"is_admin"`
-}
-
-func (q *Queries) SetAdmin(ctx context.Context, arg SetAdminParams) error {
-	_, err := q.db.Exec(ctx, setAdmin, arg.Email, arg.IsAdmin)
-	return err
-}
-
 const updateAppointmentStatus = `-- name: UpdateAppointmentStatus :exec
 UPDATE appointments SET status = $2 WHERE id = $1
 `
@@ -266,25 +321,16 @@ func (q *Queries) UpdateAppointmentStatus(ctx context.Context, arg UpdateAppoint
 	return err
 }
 
-const userUpdateAppointment = `-- name: UserUpdateAppointment :exec
-UPDATE appointments SET datetime = $2, title = $3, description = $4 WHERE user_id = $5 AND id = $1
+const userCancelAppointment = `-- name: UserCancelAppointment :exec
+UPDATE appointments SET status = 'cancelled' WHERE id = $1 AND user_id = $2
 `
 
-type UserUpdateAppointmentParams struct {
-	ID          pgtype.UUID        `json:"id"`
-	Datetime    pgtype.Timestamptz `json:"datetime"`
-	Title       string             `json:"title"`
-	Description pgtype.Text        `json:"description"`
-	UserID      pgtype.UUID        `json:"user_id"`
+type UserCancelAppointmentParams struct {
+	ID     pgtype.UUID `json:"id"`
+	UserID pgtype.UUID `json:"user_id"`
 }
 
-func (q *Queries) UserUpdateAppointment(ctx context.Context, arg UserUpdateAppointmentParams) error {
-	_, err := q.db.Exec(ctx, userUpdateAppointment,
-		arg.ID,
-		arg.Datetime,
-		arg.Title,
-		arg.Description,
-		arg.UserID,
-	)
+func (q *Queries) UserCancelAppointment(ctx context.Context, arg UserCancelAppointmentParams) error {
+	_, err := q.db.Exec(ctx, userCancelAppointment, arg.ID, arg.UserID)
 	return err
 }

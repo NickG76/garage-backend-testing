@@ -10,13 +10,15 @@ import (
 	"hcs-full/utils"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-// generateChartData calculates appointment statistics for the last 12 months.
-func generateChartData(appointments []db.Appointment) models.ChartData {
+// generateAllAppointmentsChartData calculates appointment statistics for the last 12 months for ALL appointments.
+func generateAllAppointmentsChartData(appointments []db.GetAllAppointmentsRow) models.ChartData {
 	now := time.Now()
 	chartData := models.ChartData{
 		Labels:    make([]string, 12),
@@ -26,12 +28,8 @@ func generateChartData(appointments []db.Appointment) models.ChartData {
 	}
 
 	for i := 0; i < 12; i++ {
-		// Go backwards in time month by month
 		month := now.AddDate(0, -i, 0)
-		// Build labels array from oldest to newest
 		chartData.Labels[11-i] = month.Format("Jan")
-
-		// Iterate through all appointments to count stats for the current month in the loop
 		for _, appt := range appointments {
 			if appt.Datetime.Time.Year() == month.Year() && appt.Datetime.Time.Month() == month.Month() {
 				switch appt.Status {
@@ -45,7 +43,35 @@ func generateChartData(appointments []db.Appointment) models.ChartData {
 			}
 		}
 	}
+	return chartData
+}
 
+// generateUserChartData calculates appointment statistics for the last 12 months for a single user.
+func generateUserChartData(appointments []db.Appointment) models.ChartData {
+	now := time.Now()
+	chartData := models.ChartData{
+		Labels:    make([]string, 12),
+		Confirmed: make([]int, 12),
+		Pending:   make([]int, 12),
+		Cancelled: make([]int, 12),
+	}
+
+	for i := 0; i < 12; i++ {
+		month := now.AddDate(0, -i, 0)
+		chartData.Labels[11-i] = month.Format("Jan")
+		for _, appt := range appointments {
+			if appt.Datetime.Time.Year() == month.Year() && appt.Datetime.Time.Month() == month.Month() {
+				switch appt.Status {
+				case "confirmed", "completed":
+					chartData.Confirmed[11-i]++
+				case "pending":
+					chartData.Pending[11-i]++
+				case "cancelled":
+					chartData.Cancelled[11-i]++
+				}
+			}
+		}
+	}
 	return chartData
 }
 
@@ -69,7 +95,6 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Calculate stats for cards
 	var total, accepted, pending, cancelled int
 	for _, appt := range appointments {
 		total++
@@ -83,12 +108,9 @@ func DashboardHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Generate calendar data for the current month
 	now := time.Now()
 	calendarData := generateCalendarData(now, appointments)
-
-	// Generate chart data for the last 12 months
-	chartData := generateChartData(appointments)
+	chartData := generateUserChartData(appointments)
 
 	data := models.PageData{
 		Title:                 "Dashboard",
@@ -139,24 +161,29 @@ func CreateAppointmentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Notify admins via WebSocket
 	notification := map[string]interface{}{
 		"type": "new_appointment",
 		"data": map[string]string{
 			"appointmentId": hex.EncodeToString(appt.ID.Bytes[:]),
 			"title":         appt.Title,
-			"userName":      claims.Email, // or User's name if you fetch it
+			"user":          claims.Email,
 		},
 	}
 	jsonMsg, _ := json.Marshal(notification)
-	WsHub.broadcast <- jsonMsg
+	WsHub.BroadcastMessage(jsonMsg)
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-func DeleteAppointmentHandler(w http.ResponseWriter, r *http.Request) {
+func UserCancelAppointmentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	claims, ok := r.Context().Value("userClaims").(*models.Claims)
+	if !ok {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 
@@ -166,19 +193,26 @@ func DeleteAppointmentHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid appointment ID", http.StatusBadRequest)
 		return
 	}
-
 	var pgUUID pgtype.UUID
 	copy(pgUUID.Bytes[:], idBytes)
 	pgUUID.Valid = true
 
-	err = database.Queries.DeleteAppointment(context.Background(), pgUUID)
+	params := db.UserCancelAppointmentParams{
+		ID:     pgUUID,
+		UserID: pgtype.UUID{Bytes: claims.UserID, Valid: true},
+	}
+
+	err = database.Queries.UserCancelAppointment(context.Background(), params)
 	if err != nil {
-		log.Printf("Error deleting appointment: %v", err)
-		http.Error(w, "Error deleting appointment", http.StatusInternalServerError)
+		log.Printf("Error cancelling appointment: %v", err)
+		http.Error(w, "Error cancelling appointment", http.StatusInternalServerError)
 		return
 	}
+
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
+
+// --- ADMIN HANDLERS ---
 
 func AdminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("userClaims").(*models.Claims)
@@ -203,6 +237,67 @@ func AdminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RenderTemplate(w, r, "admin_dashboard.html", data)
+}
+
+func AdminOverviewHandler(w http.ResponseWriter, r *http.Request) {
+	claims, ok := r.Context().Value("userClaims").(*models.Claims)
+	if !ok || !claims.IsAdmin {
+		RenderTemplate(w, r, "error.html", models.PageData{Title: "Forbidden", ErrorMessage: "You do not have permission to view this page."})
+		return
+	}
+
+	allAppointments, err := database.Queries.GetAllAppointments(context.Background())
+	if err != nil {
+		log.Printf("Error getting all appointments for overview: %v", err)
+	}
+
+	var total, accepted, pending, cancelled int
+	appointmentsByUser := make(map[uuid.UUID]models.UserAppointmentSummary)
+
+	users, err := database.Queries.GetAllUsers(context.Background())
+	if err != nil {
+		log.Printf("Error getting all users for overview: %v", err)
+	}
+	userMap := make(map[pgtype.UUID]db.User)
+	for _, u := range users {
+		userMap[u.ID] = u
+	}
+
+	for _, appt := range allAppointments {
+		total++
+		switch appt.Status {
+		case "confirmed", "completed":
+			accepted++
+		case "pending":
+			pending++
+		case "cancelled":
+			cancelled++
+		}
+
+		summary := appointmentsByUser[appt.UserID.Bytes]
+		summary.User = userMap[appt.UserID]
+		summary.Count++
+		appointmentsByUser[appt.UserID.Bytes] = summary
+	}
+
+	now := time.Now()
+	calendarData := generateAdminCalendarData(now, allAppointments)
+	chartData := generateAllAppointmentsChartData(allAppointments)
+
+	data := models.PageData{
+		Title:                 "Admin Overview",
+		IsAuthenticated:       true,
+		User:                  &db.User{Name: claims.Email, IsAdmin: true},
+		TotalAppointments:     total,
+		AcceptedAppointments:  accepted,
+		PendingAppointments:   pending,
+		CancelledAppointments: cancelled,
+		Calendar:              calendarData,
+		ChartData:             chartData,
+		AppointmentsByUser:    appointmentsByUser,
+	}
+
+	RenderTemplate(w, r, "admin_overview.html", data)
 }
 
 func AdminUpdateAppointmentStatusHandler(w http.ResponseWriter, r *http.Request) {
@@ -236,12 +331,10 @@ func AdminUpdateAppointmentStatusHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Fetch appointment details to get UserID and Title for notification
 	appt, err := database.Queries.GetAppointmentsByID(context.Background(), pgUUID)
 	if err != nil {
 		log.Printf("Could not fetch appointment for notification: %v", err)
 	} else {
-		// Notify the specific user via WebSocket
 		unicastMessage := &models.Message{
 			UserID: appt.UserID.Bytes,
 			Type:   "status_update",
@@ -251,12 +344,84 @@ func AdminUpdateAppointmentStatusHandler(w http.ResponseWriter, r *http.Request)
 				"status":        appt.Status,
 			},
 		}
-		WsHub.unicast <- unicastMessage
+		WsHub.UnicastMessage(unicastMessage)
 	}
 
 	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 }
 
+func AdminDeleteAppointmentHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+		return
+	}
+	appointmentIDStr := r.FormValue("id")
+	idBytes, err := hex.DecodeString(appointmentIDStr)
+	if err != nil || len(idBytes) != 16 {
+		http.Error(w, "Invalid appointment ID", http.StatusBadRequest)
+		return
+	}
+	var pgUUID pgtype.UUID
+	copy(pgUUID.Bytes[:], idBytes)
+	pgUUID.Valid = true
+
+	err = database.Queries.AdminDeleteAppointment(context.Background(), pgUUID)
+	if err != nil {
+		log.Printf("Error deleting appointment by admin: %v", err)
+		http.Error(w, "Error deleting appointment", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+}
+
+func AdminCalendarHandler(w http.ResponseWriter, r *http.Request) {
+	monthStr := r.URL.Query().Get("month")
+	yearStr := r.URL.Query().Get("year")
+
+	month, err := strconv.Atoi(monthStr)
+	if err != nil || month < 1 || month > 12 {
+		month = int(time.Now().Month())
+	}
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		year = time.Now().Year()
+	}
+
+	now := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+
+	firstDay := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	lastDay := firstDay.AddDate(0, 1, 0)
+
+	params := db.GetAllAppointmentsByMonthParams{
+		Datetime:   pgtype.Timestamptz{Time: firstDay, Valid: true},
+		Datetime_2: pgtype.Timestamptz{Time: lastDay, Valid: true},
+	}
+	appointments, err := database.Queries.GetAllAppointmentsByMonth(context.Background(), params)
+	if err != nil {
+		log.Printf("Error fetching appointments for admin calendar: %v", err)
+	}
+
+	var allAppointmentsRows []db.GetAllAppointmentsRow
+	for _, appt := range appointments {
+		user, err := database.Queries.GetUserByID(context.Background(), appt.UserID)
+		if err != nil {
+			continue
+		}
+		allAppointmentsRows = append(allAppointmentsRows, db.GetAllAppointmentsRow{
+			ID:          appt.ID,
+			Datetime:    appt.Datetime,
+			Title:       appt.Title,
+			Description: appt.Description,
+			Status:      appt.Status,
+			UserName:    user.Name,
+		})
+	}
+
+	calendarData := generateAdminCalendarData(now, allAppointmentsRows)
+	RenderPartialTemplate(w, r, "admin_calendar.html", calendarData)
+}
+
+// generateCalendarData creates calendar data for a single user.
 func generateCalendarData(t time.Time, appointments []db.Appointment) models.CalendarData {
 	year, month, _ := t.Date()
 	firstDay := time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
@@ -274,12 +439,9 @@ func generateCalendarData(t time.Time, appointments []db.Appointment) models.Cal
 	}
 
 	var days []models.CalendarDay
-	// Add blank days for the first week
 	for i := 0; i < int(firstDay.Weekday()); i++ {
 		days = append(days, models.CalendarDay{Number: 0})
 	}
-
-	// Add days of the month
 	for day := 1; day <= lastDay.Day(); day++ {
 		days = append(days, models.CalendarDay{
 			Number:       day,
@@ -293,7 +455,46 @@ func generateCalendarData(t time.Time, appointments []db.Appointment) models.Cal
 		Year:        year,
 		DaysOfWeek:  []string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"},
 		Days:        days,
-		MonthIndex: int(month),
+		MonthIndex:  int(month),
+	}
+}
+
+
+// generateAdminCalendarData creates calendar data with all user appointments.
+func generateAdminCalendarData(t time.Time, appointments []db.GetAllAppointmentsRow) models.CalendarData {
+	year, month, _ := t.Date()
+	firstDay := time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
+	lastDay := firstDay.AddDate(0, 1, -1)
+
+	appointmentsMap := make(map[int][]models.AppointmentInfo)
+	for _, appt := range appointments {
+		if appt.Datetime.Time.Year() == year && appt.Datetime.Time.Month() == month {
+			day := appt.Datetime.Time.Day()
+			appointmentsMap[day] = append(appointmentsMap[day], models.AppointmentInfo{
+				Title:    appt.Title,
+				Time:     appt.Datetime.Time.Format("3:04 PM"),
+				UserName: appt.UserName,
+			})
+		}
+	}
+
+	var days []models.CalendarDay
+	for i := 0; i < int(firstDay.Weekday()); i++ {
+		days = append(days, models.CalendarDay{Number: 0})
+	}
+	for day := 1; day <= lastDay.Day(); day++ {
+		days = append(days, models.CalendarDay{
+			Number:       day,
+			IsToday:      day == t.Day() && month == t.Month() && year == t.Year(),
+			Appointments: appointmentsMap[day],
+		})
+	}
+
+	return models.CalendarData{
+		Month:      t.Format("January"),
+		Year:       year,
+		DaysOfWeek: []string{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"},
+		Days:       days,
 	}
 }
 

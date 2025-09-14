@@ -29,14 +29,15 @@ type PageData struct {
 	CancelledAppointments int
 	Calendar              CalendarData
 	ChartData             ChartData
+	AppointmentsByUser    map[uuid.UUID]UserAppointmentSummary
 }
 
 type CalendarData struct {
-	Month       string
-	Year        int
-	DaysOfWeek  []string
-	Days        []CalendarDay
-	MonthIndex  int
+	Month      string
+	Year       int
+	DaysOfWeek []string
+	Days       []CalendarDay
+	MonthIndex int
 }
 
 type CalendarDay struct {
@@ -46,11 +47,11 @@ type CalendarDay struct {
 }
 
 type AppointmentInfo struct {
-	Title string `json:"title"`
-	Time  string `json:"time"`
+	Title    string `json:"title"`
+	Time     string `json:"time"`
+	UserName string `json:"userName,omitempty"`
 }
 
-// ChartData holds the monthly appointment counts for the overview chart.
 type ChartData struct {
 	Labels    []string `json:"labels"`
 	Confirmed []int    `json:"confirmed"`
@@ -58,11 +59,15 @@ type ChartData struct {
 	Cancelled []int    `json:"cancelled"`
 }
 
-// Message is the structure for WebSocket messages
 type Message struct {
-	UserID uuid.UUID       `json:"userId"`
-	Type   string          `json:"type"`
-	Data   interface{}     `json:"data"`
+	UserID uuid.UUID   `json:"userId"`
+	Type   string      `json:"type"`
+	Data   interface{} `json:"data"`
+}
+
+type UserAppointmentSummary struct {
+	User  db.User
+	Count int
 }
 
 

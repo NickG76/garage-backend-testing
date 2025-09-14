@@ -1,0 +1,38 @@
+<div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-semibold text-gray-800">{{.Month}} {{.Year}}</h3>
+    <div class="flex space-x-2">
+        <button id="cal-prev" class="p-1 rounded hover:bg-gray-100">
+            <i data-feather="chevron-left"></i>
+        </button>
+        <button id="cal-next" class="p-1 rounded hover:bg-gray-100">
+            <i data-feather="chevron-right"></i>
+        </button>
+    </div>
+</div>
+<div class="grid grid-cols-7 gap-1 mb-2">
+     {{range .DaysOfWeek}}
+    <div class="text-center text-xs font-medium text-gray-500">{{.}}</div>
+     {{end}}
+</div>
+<div class="grid grid-cols-7 gap-1">
+    {{range .Days}}
+        {{if .Number | eq 0}}
+        <div class="h-10"></div>
+        {{else}}
+        <div class="relative group h-10 flex items-center justify-center text-sm rounded-lg cursor-pointer {{if .IsToday}}bg-blue-600 text-white font-semibold{{else}}hover:bg-gray-200{{end}}">
+            {{.Number}}
+            {{if .Appointments}}
+            <span class="absolute bottom-1 h-1 w-1 bg-blue-500 rounded-full"></span>
+            <!-- Tooltip -->
+            <div class="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                {{range .Appointments}}
+                <p>{{.Title}} at {{.Time}}</p>
+                {{end}}
+                <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+    {{end}}
+</div>
+
