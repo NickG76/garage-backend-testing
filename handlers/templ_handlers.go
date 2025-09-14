@@ -3,9 +3,11 @@ package handlers
 import (
 	"context"
 	"hcs-full/database"
+	"hcs-full/database/db"
 	"hcs-full/models"
 	templPkg "hcs-full/templates_templ"
 	"hcs-full/utils"
+	"log"
 	"net/http"
 
 	"github.com/a-h/templ"
@@ -159,6 +161,107 @@ func LoginHandlerTempl(w http.ResponseWriter, r *http.Request) {
 	// For HTMX, we need to trigger a redirect
 	w.Header().Set("HX-Redirect", "/dashboard")
 	w.WriteHeader(http.StatusOK)
+}
+
+// SignupPageTempl renders the signup page using templ
+func SignupPageTempl(w http.ResponseWriter, r *http.Request) {
+	data := models.PageData{Title: "Sign Up"}
+	
+	// Check for error or success messages from query parameters
+	if err := r.URL.Query().Get("error"); err != "" {
+		data.Error = err
+	}
+	if success := r.URL.Query().Get("success"); success != "" {
+		data.Success = success
+	}
+	
+	RenderTemplPage(w, r, templPkg.SignupPage, data)
+}
+
+// SignupHandlerTempl handles signup form submission with HTMX
+func SignupHandlerTempl(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		SignupPageTempl(w, r)
+		return
+	}
+
+	// Handle POST request (signup form submission)
+	name := utils.SanitizeInput(r.FormValue("name"))
+	email := utils.SanitizeInput(r.FormValue("email"))
+	password := r.FormValue("password")
+	confirmPassword := r.FormValue("confirm_password")
+	phone := utils.SanitizeInput(r.FormValue("phone"))
+	_ = r.FormValue("terms") // terms checkbox
+
+	// Basic validation
+	if name == "" || email == "" || password == "" || confirmPassword == "" || phone == "" {
+		data := models.PageData{
+			Title: "Sign Up",
+			Error: "All fields are required",
+		}
+		RenderTemplPage(w, r, templPkg.SignupPage, data)
+		return
+	}
+
+	if password != confirmPassword {
+		data := models.PageData{
+			Title: "Sign Up",
+			Error: "Passwords do not match",
+		}
+		RenderTemplPage(w, r, templPkg.SignupPage, data)
+		return
+	}
+
+	if len(password) < 8 {
+		data := models.PageData{
+			Title: "Sign Up",
+			Error: "Password must be at least 8 characters long",
+		}
+		RenderTemplPage(w, r, templPkg.SignupPage, data)
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(password)
+	if err != nil {
+		data := models.PageData{
+			Title: "Sign Up",
+			Error: "Server error, unable to process password",
+		}
+		RenderTemplPage(w, r, templPkg.SignupPage, data)
+		return
+	}
+
+	params := db.CreateUserParams{
+		Name:         name,
+		Email:        email,
+		PasswordHash: hashedPassword,
+		Phone:        phone,
+		IsAdmin:      false,
+	}
+	_, err = database.Queries.CreateUser(context.Background(), params)
+	if err != nil {
+		log.Printf("Could not create user: %v", err)
+		data := models.PageData{
+			Title: "Sign Up",
+			Error: "Email already exists or server error",
+		}
+		RenderTemplPage(w, r, templPkg.SignupPage, data)
+		return
+	}
+
+	// For HTMX, redirect to login page with success message
+	w.Header().Set("HX-Redirect", "/login?success=Account created successfully! Please log in.")
+	w.WriteHeader(http.StatusOK)
+}
+
+// PrivacyPolicyPageTempl renders the privacy policy page using templ
+func PrivacyPolicyPageTempl(w http.ResponseWriter, r *http.Request) {
+	RenderTemplPage(w, r, templPkg.PrivacyPolicyPage, models.PageData{Title: "Privacy Policy"})
+}
+
+// TermsAndConditionsPageTempl renders the terms and conditions page using templ
+func TermsAndConditionsPageTempl(w http.ResponseWriter, r *http.Request) {
+	RenderTemplPage(w, r, templPkg.TermsAndConditionsPage, models.PageData{Title: "Terms & Conditions"})
 }
 
 // LogoutHandlerTempl handles logout with HTMX

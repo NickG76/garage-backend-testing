@@ -1,0 +1,151 @@
+package templates
+
+import "hcs-full/models"
+
+templ PrivacyPolicyPage(data models.PageData) {
+	@headerComponent(data)
+	<main>
+		<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<header class="py-10 text-center">
+				<h1 class="text-4xl font-bold text-gray-900 dark:text-white">Privacy Policy</h1>
+				<p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Hartlepool Car Services</p>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Last Updated: 14 September 2025</p>
+			</header>
+			<div class="prose prose-lg max-w-none dark:prose-invert">
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">1. Introduction</h2>
+					<p class="mb-4">
+						Hartlepool Car Services ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">2. Information We Collect</h2>
+					<p class="mb-4">We may collect information about you in a variety of ways:</p>
+					<ul class="list-disc pl-6 mb-4">
+						<li>Personal Data: Name, email address, phone number, and other contact information</li>
+						<li>Vehicle Information: Details about your vehicle for service purposes</li>
+						<li>Service History: Records of services performed on your vehicle</li>
+						<li>Payment Information: Billing details for payment processing</li>
+					</ul>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">3. How We Use Your Information</h2>
+					<p class="mb-4">We use information we collect about you to:</p>
+					<ul class="list-disc pl-6 mb-4">
+						<li>Provide and maintain our services</li>
+						<li>Process appointments and service requests</li>
+						<li>Communicate with you about your vehicle and services</li>
+						<li>Send you marketing communications (with your consent)</li>
+						<li>Improve our services and customer experience</li>
+					</ul>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">4. Information Sharing</h2>
+					<p class="mb-4">
+						We do not sell, trade, or otherwise transfer your personal information to third parties without your consent, except as described in this privacy policy or as required by law.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">5. Data Security</h2>
+					<p class="mb-4">
+						We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">6. Contact Us</h2>
+					<p class="mb-4">
+						If you have any questions about this Privacy Policy, please contact us at:
+					</p>
+					<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+						<p><strong>Email:</strong> info@hartlepoolcarservices.com</p>
+						<p><strong>Phone:</strong> 01429 123456</p>
+						<p><strong>Address:</strong> 123 Industrial Estate, Hartlepool, TS24 0XX</p>
+					</div>
+				</section>
+			</div>
+		</div>
+	</main>
+	@footerComponent()
+}
+
+templ TermsAndConditionsPage(data models.PageData) {
+	@headerComponent(data)
+	<main>
+		<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+			<header class="py-10 text-center">
+				<h1 class="text-4xl font-bold text-gray-900 dark:text-white">Terms and Conditions</h1>
+				<p class="mt-2 text-lg text-gray-600 dark:text-gray-400">Hartlepool Car Services</p>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-500">Last Updated: 14 September 2025</p>
+			</header>
+			<div class="prose prose-lg max-w-none dark:prose-invert">
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">1. Acceptance of Terms</h2>
+					<p class="mb-4">
+						By accessing and using our website and services, you accept and agree to be bound by the terms and provision of this agreement.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">2. Services</h2>
+					<p class="mb-4">
+						Hartlepool Car Services provides automotive repair, maintenance, and diagnostic services. All work is performed by qualified technicians using appropriate tools and equipment.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">3. Appointment Booking</h2>
+					<ul class="list-disc pl-6 mb-4">
+						<li>Appointments must be booked in advance</li>
+						<li>We reserve the right to reschedule appointments due to unforeseen circumstances</li>
+						<li>Cancellations should be made at least 24 hours in advance</li>
+						<li>Late arrivals may result in rescheduled appointments</li>
+					</ul>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">4. Payment Terms</h2>
+					<ul class="list-disc pl-6 mb-4">
+						<li>Payment is due upon completion of work</li>
+						<li>We accept cash, card, and bank transfer payments</li>
+						<li>Estimates are provided for major work</li>
+						<li>Additional charges may apply for work beyond the original scope</li>
+					</ul>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">5. Warranty</h2>
+					<p class="mb-4">
+						We provide a warranty on parts and labor as follows:
+					</p>
+					<ul class="list-disc pl-6 mb-4">
+						<li>Labor: 12 months from completion date</li>
+						<li>Parts: As per manufacturer warranty</li>
+						<li>Warranty does not cover normal wear and tear</li>
+					</ul>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">6. Limitation of Liability</h2>
+					<p class="mb-4">
+						Our liability is limited to the cost of the work performed. We are not responsible for consequential damages or losses.
+					</p>
+				</section>
+				
+				<section class="mb-8">
+					<h2 class="text-2xl font-bold mb-4">7. Contact Information</h2>
+					<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+						<p><strong>Email:</strong> info@hartlepoolcarservices.com</p>
+						<p><strong>Phone:</strong> 01429 123456</p>
+						<p><strong>Address:</strong> 123 Industrial Estate, Hartlepool, TS24 0XX</p>
+					</div>
+				</section>
+			</div>
+		</div>
+	</main>
+	@footerComponent()
+}

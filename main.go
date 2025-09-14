@@ -39,12 +39,12 @@ func main() {
 	http.HandleFunc("/about", handlers.AboutPageTempl)
 	http.HandleFunc("/services", handlers.ServicesPageTempl)
 	http.HandleFunc("/contact", handlers.ContactPageTempl)
-	http.HandleFunc("/privacy-policy", handlers.PrivacyPolicyPage)
-	http.HandleFunc("/terms-and-conditions", handlers.TermsAndConditionsPage)
+	http.HandleFunc("/privacy-policy", handlers.PrivacyPolicyPageTempl)
+	http.HandleFunc("/terms-and-conditions", handlers.TermsAndConditionsPageTempl)
 
 	// Auth routes (using templ)
 	http.HandleFunc("/login", handlers.LoginHandlerTempl)
-	http.HandleFunc("/signup", handlers.SignupHandler)
+	http.HandleFunc("/signup", handlers.SignupHandlerTempl)
 	http.HandleFunc("/logout", handlers.LogoutHandlerTempl)
 
 	// Authenticated routes
