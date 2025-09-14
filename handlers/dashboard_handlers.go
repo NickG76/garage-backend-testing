@@ -221,6 +221,13 @@ func AdminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Fetch the admin's full user details
+	adminUser, err := database.Queries.GetUserByID(context.Background(), pgtype.UUID{Bytes: claims.UserID, Valid: true})
+	if err != nil {
+		RenderTemplate(w, r, "error.html", models.PageData{Title: "Error", ErrorMessage: "Could not retrieve admin user details."})
+		return
+	}
+
 	allAppointments, err := database.Queries.GetAllAppointments(context.Background())
 	if err != nil {
 		log.Printf("Error getting all appointments: %v", err)
@@ -229,10 +236,7 @@ func AdminDashboardHandler(w http.ResponseWriter, r *http.Request) {
 	data := models.PageData{
 		Title:           "Admin Dashboard",
 		IsAuthenticated: true,
-		User: &db.User{
-			Name:    claims.Email,
-			IsAdmin: true,
-		},
+		User:            &adminUser, // Pass the fetched admin user to the template
 		AllAppointments: allAppointments,
 	}
 
@@ -243,6 +247,13 @@ func AdminOverviewHandler(w http.ResponseWriter, r *http.Request) {
 	claims, ok := r.Context().Value("userClaims").(*models.Claims)
 	if !ok || !claims.IsAdmin {
 		RenderTemplate(w, r, "error.html", models.PageData{Title: "Forbidden", ErrorMessage: "You do not have permission to view this page."})
+		return
+	}
+
+	// Fetch the admin's full user details
+	adminUser, err := database.Queries.GetUserByID(context.Background(), pgtype.UUID{Bytes: claims.UserID, Valid: true})
+	if err != nil {
+		RenderTemplate(w, r, "error.html", models.PageData{Title: "Error", ErrorMessage: "Could not retrieve admin user details."})
 		return
 	}
 
@@ -287,7 +298,7 @@ func AdminOverviewHandler(w http.ResponseWriter, r *http.Request) {
 	data := models.PageData{
 		Title:                 "Admin Overview",
 		IsAuthenticated:       true,
-		User:                  &db.User{Name: claims.Email, IsAdmin: true},
+		User:                  &adminUser, // Pass the fetched admin user to the template
 		TotalAppointments:     total,
 		AcceptedAppointments:  accepted,
 		PendingAppointments:   pending,
