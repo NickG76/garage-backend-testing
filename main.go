@@ -36,9 +36,9 @@ func main() {
 
 	// Public routes (using templ)
 	http.HandleFunc("/", handlers.HomePageTempl)
-	http.HandleFunc("/about", handlers.AboutPage)
-	http.HandleFunc("/services", handlers.ServicesPage)
-	http.HandleFunc("/contact", handlers.ContactPage)
+	http.HandleFunc("/about", handlers.AboutPageTempl)
+	http.HandleFunc("/services", handlers.ServicesPageTempl)
+	http.HandleFunc("/contact", handlers.ContactPageTempl)
 	http.HandleFunc("/privacy-policy", handlers.PrivacyPolicyPage)
 	http.HandleFunc("/terms-and-conditions", handlers.TermsAndConditionsPage)
 

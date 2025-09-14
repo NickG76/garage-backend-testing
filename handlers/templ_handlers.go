@@ -54,7 +54,48 @@ func LoginPageTempl(w http.ResponseWriter, r *http.Request) {
 	RenderTemplPage(w, r, templPkg.LoginPage, data)
 }
 
-// LoginHandlerTempl handles login form submission with HTMX
+// AboutPageTempl renders the about page using templ
+func AboutPageTempl(w http.ResponseWriter, r *http.Request) {
+	RenderTemplPage(w, r, templPkg.AboutPage, models.PageData{Title: "About Us"})
+}
+
+// ServicesPageTempl renders the services page using templ
+func ServicesPageTempl(w http.ResponseWriter, r *http.Request) {
+	RenderTemplPage(w, r, templPkg.ServicesPage, models.PageData{Title: "Our Services"})
+}
+
+// ContactPageTempl renders the contact page using templ
+func ContactPageTempl(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		RenderTemplPage(w, r, templPkg.ContactPage, models.PageData{Title: "Contact Us"})
+		return
+	}
+
+	// Handle POST request (contact form submission)
+	name := r.FormValue("name")
+	email := r.FormValue("email")
+	_ = r.FormValue("phone") // phone is optional
+	subject := r.FormValue("subject")
+	message := r.FormValue("message")
+
+	// Basic validation
+	if name == "" || email == "" || subject == "" || message == "" {
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+			<strong class="font-bold">Error: </strong>
+			<span class="block sm:inline">Please fill in all required fields.</span>
+		</div>`))
+		return
+	}
+
+	// Here you would typically send an email or save to database
+	// For now, just return a success message
+	w.Header().Set("Content-Type", "text/html")
+	w.Write([]byte(`<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+		<strong class="font-bold">Success! </strong>
+		<span class="block sm:inline">Thank you for your message. We'll get back to you within 24 hours.</span>
+	</div>`))
+}
 func LoginHandlerTempl(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		LoginPageTempl(w, r)

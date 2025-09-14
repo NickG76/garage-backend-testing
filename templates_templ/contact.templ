@@ -1,0 +1,154 @@
+package templates
+
+import "hcs-full/models"
+
+templ ContactPage(data models.PageData) {
+	@headerComponent(data)
+	<main>
+		<!-- Hero Section -->
+		<section class="contact-hero text-white py-32" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('http://static.photos/automotive/1200x630/4'); background-size: cover; background-position: center;">
+			<div class="container mx-auto px-4 text-center">
+				<h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">Contact Hartlepool Car Services</h1>
+				<p class="text-xl mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+					Get in touch with our team for all your automotive needs
+				</p>
+			</div>
+		</section>
+		<!-- Contact Info -->
+		<section class="py-16 bg-gray-50 dark:bg-gray-900">
+			<div class="container mx-auto px-4">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md contact-card transition duration-300" data-aos="fade-up">
+						<div class="text-blue-600 mb-4 contact-icon">
+							<i data-feather="phone" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3 text-center">Call Us</h3>
+						<p class="text-gray-600 dark:text-gray-400 text-center mb-2">01429 123456</p>
+						<p class="text-gray-600 dark:text-gray-400 text-center">Mon-Fri: 8:00 AM - 6:00 PM</p>
+						<p class="text-gray-600 dark:text-gray-400 text-center">Sat: 9:00 AM - 4:00 PM</p>
+					</div>
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md contact-card transition duration-300" data-aos="fade-up" data-aos-delay="100">
+						<div class="text-blue-600 mb-4 contact-icon">
+							<i data-feather="mail" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3 text-center">Email Us</h3>
+						<p class="text-gray-600 dark:text-gray-400 text-center mb-2">info@hartlepoolcarservices.com</p>
+						<p class="text-gray-600 dark:text-gray-400 text-center">We'll respond within 24 hours</p>
+					</div>
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md contact-card transition duration-300" data-aos="fade-up" data-aos-delay="200">
+						<div class="text-blue-600 mb-4 contact-icon">
+							<i data-feather="map-pin" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3 text-center">Visit Us</h3>
+						<p class="text-gray-600 dark:text-gray-400 text-center mb-2">123 Industrial Estate</p>
+						<p class="text-gray-600 dark:text-gray-400 text-center">Hartlepool, TS24 0XX</p>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- Contact Form -->
+		<section class="py-16 bg-white dark:bg-black">
+			<div class="container mx-auto px-4">
+				<div class="max-w-2xl mx-auto">
+					<div class="text-center mb-12">
+						<h2 class="text-3xl font-bold mb-4" data-aos="fade-up">Send Us a Message</h2>
+						<div class="w-20 h-1 bg-blue-600 mx-auto mb-6" data-aos="fade-up" data-aos-delay="100"></div>
+						<p class="text-gray-600 dark:text-gray-400" data-aos="fade-up" data-aos-delay="200">
+							Have a question or need to book a service? Fill out the form below and we'll get back to you.
+						</p>
+					</div>
+					<form 
+						hx-post="/contact" 
+						hx-target="#contact-response"
+						hx-swap="innerHTML"
+						class="space-y-6" 
+						data-aos="fade-up" 
+						data-aos-delay="300"
+					>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div>
+								<label for="name" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Name</label>
+								<input 
+									type="text" 
+									id="name" 
+									name="name" 
+									class="w-full py-2 px-3 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" 
+									required
+								/>
+							</div>
+							<div>
+								<label for="email" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Email</label>
+								<input 
+									type="email" 
+									id="email" 
+									name="email" 
+									class="w-full py-2 px-3 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" 
+									required
+								/>
+							</div>
+						</div>
+						<div>
+							<label for="phone" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Phone</label>
+							<input 
+								type="tel" 
+								id="phone" 
+								name="phone" 
+								class="w-full py-2 px-3 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+							/>
+						</div>
+						<div>
+							<label for="subject" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Subject</label>
+							<select 
+								id="subject" 
+								name="subject" 
+								class="w-full py-2 px-3 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" 
+								required
+							>
+								<option value="">Select a subject</option>
+								<option value="general">General Inquiry</option>
+								<option value="service">Service Booking</option>
+								<option value="quote">Request Quote</option>
+								<option value="complaint">Complaint</option>
+							</select>
+						</div>
+						<div>
+							<label for="message" class="block text-gray-700 dark:text-gray-300 font-medium mb-2">Message</label>
+							<textarea 
+								id="message" 
+								name="message" 
+								rows="5" 
+								class="w-full py-2 px-3 border border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent" 
+								placeholder="Tell us about your vehicle and what you need help with..."
+								required
+							></textarea>
+						</div>
+						<div id="contact-response" class="min-h-0"></div>
+						<button 
+							type="submit" 
+							class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+						>
+							Send Message
+						</button>
+					</form>
+				</div>
+			</div>
+		</section>
+		<!-- Map Section -->
+		<section class="py-16 bg-gray-50 dark:bg-gray-900">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-12">
+					<h2 class="text-3xl font-bold mb-4" data-aos="fade-up">Find Us</h2>
+					<div class="w-20 h-1 bg-blue-600 mx-auto mb-6" data-aos="fade-up" data-aos-delay="100"></div>
+				</div>
+				<div class="bg-gray-300 dark:bg-gray-700 h-96 rounded-lg flex items-center justify-center" data-aos="fade-up" data-aos-delay="200">
+					<div class="text-center">
+						<i data-feather="map-pin" class="w-16 h-16 mx-auto text-gray-500 mb-4"></i>
+						<p class="text-gray-600 dark:text-gray-400 text-lg">Interactive Map</p>
+						<p class="text-gray-500 dark:text-gray-500">123 Industrial Estate, Hartlepool, TS24 0XX</p>
+					</div>
+				</div>
+			</div>
+		</section>
+	</main>
+	@footerComponent()
+}

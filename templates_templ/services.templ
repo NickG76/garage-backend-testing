@@ -1,0 +1,221 @@
+package templates
+
+import "hcs-full/models"
+
+templ ServicesPage(data models.PageData) {
+	@headerComponent(data)
+	<main>
+		<!-- Hero Section -->
+		<section class="services-hero text-white py-32" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('http://static.photos/automotive/1200x630/3'); background-size: cover; background-position: center;">
+			<div class="container mx-auto px-4 text-center">
+				<h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-up">
+					Our Comprehensive Services
+				</h1>
+				<p class="text-xl mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+					Expert automotive care for all makes and models
+				</p>
+			</div>
+		</section>
+		<!-- Services List -->
+		<section class="py-16 bg-gray-50 dark:bg-gray-900">
+			<div class="container mx-auto px-4">
+				<div class="text-center mb-12">
+					<h2 class="text-3xl font-bold mb-4" data-aos="fade-up">
+						Automotive Services
+					</h2>
+					<div class="w-20 h-1 bg-blue-600 mx-auto mb-6" data-aos="fade-up" data-aos-delay="100"></div>
+					<p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="200">
+						We offer a full range of services to keep your vehicle running
+						smoothly and safely.
+					</p>
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+					<!-- Service 1 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="battery" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">Battery Services</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Comprehensive battery testing, replacement, and charging system
+							diagnostics to ensure your vehicle starts reliably.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Battery testing and diagnostics</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Premium battery replacement</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Charging system repair</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">From £45</div>
+					</div>
+					<!-- Service 2 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up" data-aos-delay="100">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="disc" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">Brakes & Suspension</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Complete brake and suspension services to ensure your safety and
+							comfort on the road.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Brake pad replacement</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Brake disc servicing</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Suspension repairs</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">From £75</div>
+					</div>
+					<!-- Service 3 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up" data-aos-delay="200">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="activity" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">Engine Diagnostics</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Advanced diagnostic tools to quickly identify and resolve engine
+							issues and performance problems.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>OBD-II scanning</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Engine performance analysis</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Fault code interpretation</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">From £35</div>
+					</div>
+					<!-- Service 4 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="tool" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">General Repairs</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Comprehensive repair services for all types of vehicle issues and
+							mechanical problems.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Engine repairs</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Transmission service</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Electrical repairs</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">Quote on request</div>
+					</div>
+					<!-- Service 5 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up" data-aos-delay="100">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="check-circle" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">MOT Testing</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Official MOT testing with detailed reports and immediate repairs if
+							needed to get you back on the road.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Class 4 MOT testing</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Pre-MOT checks</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>MOT failure repairs</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">£54.85</div>
+					</div>
+					<!-- Service 6 -->
+					<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md service-card transition duration-300" data-aos="fade-up" data-aos-delay="200">
+						<div class="text-blue-600 mb-4 service-icon">
+							<i data-feather="zap" class="w-12 h-12 mx-auto"></i>
+						</div>
+						<h3 class="text-xl font-bold mb-3">Performance Remapping</h3>
+						<p class="text-gray-600 dark:text-gray-400 mb-4">
+							Professional ECU remapping to enhance your vehicle's power,
+							torque, and fuel efficiency.
+						</p>
+						<ul class="text-gray-600 dark:text-gray-400 space-y-2 mb-4">
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Custom ECU mapping</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Performance enhancement</span>
+							</li>
+							<li class="flex items-start">
+								<i data-feather="check" class="text-green-500 mr-2 mt-1 w-4 h-4"></i>
+								<span>Fuel economy optimization</span>
+							</li>
+						</ul>
+						<div class="text-blue-600 font-bold text-lg">From £295</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- Call to Action -->
+		<section class="py-16 bg-blue-600 text-white">
+			<div class="container mx-auto px-4 text-center">
+				<h2 class="text-3xl font-bold mb-4" data-aos="fade-up">Book Your Service Today</h2>
+				<p class="text-xl mb-8 max-w-2xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+					Don't wait for problems to develop. Schedule your service appointment now.
+				</p>
+				<div class="flex flex-col sm:flex-row justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
+					<a
+						href="/contact"
+						hx-get="/contact"
+						hx-target="body"
+						hx-swap="outerHTML"
+						hx-push-url="true"
+						class="bg-white hover:bg-gray-100 text-blue-600 font-bold py-3 px-6 rounded transition duration-300"
+					>
+						Contact Us
+					</a>
+					<a
+						href="tel:01429123456"
+						class="bg-transparent hover:bg-white hover:text-blue-600 text-white font-bold py-3 px-6 border-2 border-white rounded transition duration-300"
+					>
+						Call: 01429 123456
+					</a>
+				</div>
+			</div>
+		</section>
+	</main>
+	@footerComponent()
+}
