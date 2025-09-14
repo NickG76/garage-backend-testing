@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"hcs-full/database"
 	"hcs-full/models"
+	"hcs-full/utils"
 	"html/template"
 	"log"
 	"net/http"
@@ -42,19 +43,26 @@ func init() {
 
 // RenderTemplate renders a full page template from the pre-parsed cache.
 func RenderTemplate(w http.ResponseWriter, r *http.Request, tmplName string, data models.PageData) {
-	claims, ok := r.Context().Value("userClaims").(*models.Claims)
-	if ok {
-		data.IsAuthenticated = true
-		if data.User == nil {
-			user, err := database.Queries.GetUserByID(context.Background(), pgtype.UUID{Bytes: claims.UserID, Valid: true})
-			if err == nil {
-				data.User = &user
+	// For every page render, check for a valid token to ensure the header is always correct.
+	c, err := r.Cookie("token")
+	if err == nil {
+		claims, err := utils.ParseJWT(c.Value)
+		if err == nil {
+			data.IsAuthenticated = true
+			// If the handler didn't already provide user data (e.g., for static pages),
+			// fetch it so the header can display it.
+			if data.User == nil {
+				user, err := database.Queries.GetUserByID(context.Background(), pgtype.UUID{Bytes: claims.UserID, Valid: true})
+				if err == nil {
+					data.User = &user
+				}
 			}
 		}
 	}
 
 	buf := new(bytes.Buffer)
-	err := templates.ExecuteTemplate(buf, tmplName, data)
+	// Execute the specific template by its base name (e.g., "index.html") from the global cache.
+	err = templates.ExecuteTemplate(buf, tmplName, data)
 	if err != nil {
 		log.Printf("Error executing template %s: %v", tmplName, err)
 		http.Error(w, "Error rendering page", http.StatusInternalServerError)
